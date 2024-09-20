@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"git.n-hub.ru/neosy/npulse-agent/internal/config"
@@ -20,15 +21,25 @@ func init() {
 func main() {
 	var clients interface{}
 
-	url := pflag.StringP("url", "a", cfg.ClientWatcher.URL, "Список url адресов сервера Watcher")
+	appName := os.Args[0]
 
-	port := pflag.IntP("port", "p", cfg.ClientWatcher.Port, "Порт сервера Watcher")
+	url := pflag.StringP("url", "a", cfg.ClientWatcher.URL, "Список url адресов сервера nPulseWatcher")
+	port := pflag.IntP("port", "p", cfg.ClientWatcher.Port, "Порт сервера nPulseWatcher")
+
+	// Проверяем наличие флага -h или --help до вызова pflag.Parse()
+	pflag.Usage = func() {
+		// Выводим пример использования
+		fmt.Printf("Usage example: %s -a <url1,url2,url...> -p <port>\n", appName)
+
+		// Выводим список параметров
+		pflag.PrintDefaults()
+	}
 
 	// Разбираем флаги
 	pflag.Parse()
 
 	if len(os.Args) == 1 && cfg.ClientWatcher.URL == "" {
-		pflag.PrintDefaults() // Выводим список параметров
+		pflag.Usage()
 		os.Exit(0)
 	}
 
