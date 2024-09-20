@@ -11,4 +11,6 @@ cd /tmp && git clone https://github.com/neosy/npulse-agent.git && cd npulse-agen
 npulse-agent -a <url1,url2,url...> -p <port>
 ```
 ### Example
+```
 npulse-agent -a "http://127.0.0.1" -p 8080
+```
