@@ -4,12 +4,11 @@
 include .make.env
 export
 
-VERSION_APP_FILE := "VERSION"
+VERSION_FILE := "VERSION"
+VERSION_START := "0.1.0"
 
-VERSION_APP_START := "0.1.0"
-
-VERSION_APP := $(shell cat $(VERSION_APP_FILE))
-VERSION_APP_NEW := $(shell echo $(VERSION_APP) | awk -F. '{print $$1"."$$2"."$$3+1}')
+VERSION := $(shell cat $(VERSION_FILE))
+VERSION_NEW := $(shell echo $(VERSION) | awk -F. '{print $$1"."$$2"."$$3+1}')
 
 .DEFAULT_GOAL := help
 
@@ -23,14 +22,14 @@ run: ## Запуск
 	@go run ./cmd/main.go
 
 git-push-tag-version: ## Создание тега в git для актуальной версии
-	-git tag v$(VERSION_APP)
+	-git tag v$(VERSION)
 	git push --tags
 
-version-app-create: ## Создание файла с номер версии программы
-	echo -n $(VERSION_APP_START) > $(VERSION_APP_FILE)
+version-create: ## Создание файла с номер версии программы
+	echo -n $(VERSION_START) > $(VERSION_FILE)
 	
-version-app-inc: ## Увеличение номера версии программы и сохранение в файл
-	echo -n $(VERSION_APP_NEW) > $(VERSION_APP_FILE)
+version-inc: ## Увеличение номера версии программы и сохранение в файл
+	echo -n $(VERSION_NEW) > $(VERSION_FILE)
 
 install: ## Установка приложения
 	@./install.sh
