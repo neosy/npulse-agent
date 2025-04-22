@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
-	"os/signal"
-	"syscall"
 
+	rclients "git.n-hub.ru/neosy/npulse-agent/adapter/outbound/rest"
+	watchercl "git.n-hub.ru/neosy/npulse-agent/adapter/outbound/rest/watcher"
 	"git.n-hub.ru/neosy/npulse-agent/application/usecases"
 	"git.n-hub.ru/neosy/npulse-agent/application/usecases/watcher"
 	iconfig "git.n-hub.ru/neosy/npulse-agent/infrastructure/config"
@@ -16,7 +15,7 @@ import (
 func main() {
 	cfg := iconfig.New()
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx := context.Background()
 
 	// Создаем обработчик с уровнем Info, используя HandlerOptions
 	handlerOptions := &slog.HandlerOptions{
@@ -25,24 +24,27 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, handlerOptions))
 
 	// Usecases
+	clientWatcherConfig := &watchercl.Config{
+		Method: cfg.WatcherConfig.Method,
+		Paths: watchercl.Paths{
+			Ping: cfg.WatcherConfig.Paths.Ping,
+			Reg:  cfg.WatcherConfig.Paths.Reg,
+		},
+	}
+	ucDeps := &usecases.Dependencies{
+		RestClients: rclients.New(clientWatcherConfig),
+	}
 	watcherConfig := &watcher.Config{
 		URLs: cfg.WatcherConfig.ParseURLs(),
 		Port: cfg.WatcherConfig.Port,
 	}
-	uc := usecases.New(logger, watcherConfig)
+	uc := usecases.New(logger, watcherConfig, ucDeps)
 	// Initialize
 	uc.Init(ctx)
 
-	// Захват сигналов завершения (Ctrl+C, SIGTERM)
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-
-	// Ждем сигнал завершения или отмены контекста
-	select {
-	case <-ctx.Done():
-		logger.ErrorContext(ctx, "Context complete, shutting down services...")
-	case sig := <-sigChan:
-		logger.ErrorContext(ctx, fmt.Sprintf("Signal received: %v, shutting down...", sig))
-		cancel()
+	// Run
+	err := uc.Watcher.Reg()
+	if err != nil {
+		logger.Error(err.Error())
 	}
 }

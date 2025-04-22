@@ -18,8 +18,16 @@ type Config struct {
 }
 
 type WatcherConfigDefault struct {
-	URLs string `env:"WATCHER_URLS" envDefault:"192.168.23.11 192.168.23.24"`
-	Port string `env:"WATCHER_PORT" envDefault:"8081"`
+	URLs   string `env:"WATCHER_URLS" envDefault:"http://192.168.23.11,http://192.168.23.24"`
+	Port   string `env:"WATCHER_PORT" envDefault:"8081"`
+	Method string `enc:"WATCHER_METHOD" envDefault:"GET"`
+	Paths  WatcherRestPaths
+}
+
+// REST Paths
+type WatcherRestPaths struct {
+	Ping string `env:"WATCHER_PATH_PING" envDefault:"/watcher/ping"`
+	Reg  string `env:"WATCHER_PATH_REG" envDefault:"/watcher/reg"`
 }
 
 func (c *WatcherConfigDefault) ParseURLs() []string {
@@ -31,6 +39,8 @@ func New() *Config {
 	c := &Config{}
 
 	c.load()
+
+	c.parseFlag()
 
 	return c
 }

@@ -1,7 +1,5 @@
 package watcher
 
-import "context"
-
-func (u *Watcher) Ping(ctx *context.Context) {
-
+func (u *Watcher) Ping(url string) error {
+	return u.watcherClient.Ping(url)
 }
