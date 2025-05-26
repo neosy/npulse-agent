@@ -26,10 +26,11 @@ func HostIP() (string, error) {
 			continue
 		}
 
-		// Игнорируем виртуальные и loopback интерфейсы
+		// Игнорируем виртуальные, vpn и loopback интерфейсы
 		if strings.HasPrefix(iface.Name, "docker") ||
 			strings.HasPrefix(iface.Name, "br-") ||
 			strings.HasPrefix(iface.Name, "veth") ||
+			strings.HasPrefix(iface.Name, "ppp") ||
 			strings.HasPrefix(iface.Name, "lo") {
 			continue
 		}
