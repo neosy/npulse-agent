@@ -1,3 +1,3 @@
 package iconstants
 
-const AppVersion = "0.2.1"
+const AppVersion = "0.2.2"

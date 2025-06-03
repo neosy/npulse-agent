@@ -31,6 +31,7 @@ func HostIP() (string, error) {
 			strings.HasPrefix(iface.Name, "br-") ||
 			strings.HasPrefix(iface.Name, "veth") ||
 			strings.HasPrefix(iface.Name, "ppp") ||
+			strings.HasPrefix(iface.Name, "amn") ||
 			strings.HasPrefix(iface.Name, "lo") {
 			continue
 		}
